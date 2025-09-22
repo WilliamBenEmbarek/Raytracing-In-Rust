@@ -1,8 +1,6 @@
 use rand::Rng;
 use rayon::prelude::*;
 use std::sync::atomic::{AtomicUsize, Ordering};
-
-use crate::vec3::random_unit_vector;
 use crate::{color::{color_to_string, Color}, hittable::Hittable, interval::Interval, ray::Ray, vec3::{unit_vector, Point3, Vec3}};
 
 
@@ -13,6 +11,8 @@ pub struct Camera {
     pub image_width: i32,
     pub samples_per_pixel: i32,
     pub max_depth: i32,
+
+    pub vfov: f64,
 
     // Private fields that get initialized later
     image_height: Option<i32>,
@@ -28,8 +28,9 @@ impl Camera {
         Camera {
             aspect_ratio: 1.0,
             image_width: 100,
-            samples_per_pixel: 10,
+            samples_per_pixel: 200,
             max_depth: 10,
+            vfov: 90.0,
             image_height: None,
             pixel_samples_scale: None,
             center: None,
@@ -46,6 +47,11 @@ impl Camera {
 
     pub fn with_image_width(mut self, image_width: i32) -> Self {
         self.image_width = image_width;
+        self
+    }
+
+    pub fn with_vfov(mut self, vfov: f64) -> Self {
+        self.vfov = vfov;
         self
     }
 
@@ -126,7 +132,9 @@ impl Camera {
 
         // Determine viewport dimensions
         let focal_length = 1.0;
-        let viewport_height = 2.0;
+        let theta = self.vfov.to_radians();
+        let h = (theta/2.0).tan();
+        let viewport_height = 2.0 * h * focal_length;
         let viewport_width = viewport_height * (self.image_width as f64 / self.image_height.unwrap() as f64);
 
         // Calculate the vectors across the horizontal and down the vertical viewport edges

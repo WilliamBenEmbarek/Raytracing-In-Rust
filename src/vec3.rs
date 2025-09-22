@@ -160,4 +160,11 @@ pub fn random_with_range(min: f64, max: f64, rng: &mut dyn rand::RngCore) -> Vec
 
 pub fn reflect(v: Vec3, normal: Vec3) -> Vec3{
     v - (normal * dot(v,normal) * 2.0)
-} 
+}
+
+pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
+    let cos_theta = dot(-uv, n).min(1.0);
+    let r_out_perp = (uv + (n * cos_theta)) * etai_over_etat;
+    let r_out_parallel = n * -(1.0 - r_out_perp.length_squared()).abs().sqrt();
+    r_out_perp + r_out_parallel
+}
