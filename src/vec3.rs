@@ -129,6 +129,15 @@ pub fn unit_vector(v: Vec3) -> Vec3 {
     v / v.length()
 }
 
+pub fn random_in_unit_disk(rng: &mut dyn rand::RngCore) -> Vec3 {
+    loop {
+        let p: Vec3 = Vec3::new(rng.random_range(-1.0..1.0), rng.random_range(-1.0..1.0), 0.0);
+        if p.length_squared() < 1.0 {
+            return p
+        }
+    }
+}
+
 pub fn random_unit_vector(rng: &mut dyn rand::RngCore) -> Vec3 {
     loop {
         let p: Vec3 = random_with_range(-1.0, 1.0, rng);
@@ -150,7 +159,7 @@ pub fn random_on_hemisphere(normal: Vec3, rng: &mut dyn rand::RngCore) -> Vec3 {
 
 pub fn random_vector(rng: &mut dyn rand::RngCore) -> Vec3{
     Vec3::new(
-        rng.random(), rng.random(), rng.random()
+        rng.random_range(0.0..1.0), rng.random_range(0.0..1.0), rng.random_range(0.0..1.0)
     )
 }
 
